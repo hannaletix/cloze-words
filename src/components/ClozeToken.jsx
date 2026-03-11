@@ -14,19 +14,15 @@ export default function ClozeToken({ token, onChange, onCheck }) {
     return <span>{token.value}</span>;
   }
 
-  // palavra normal visível
   if (!token.hidden) {
     return <span>{token.original}</span>;
   }
 
-  // ✅ se acertou, mostra só a palavra
   if (token.status === "correct") {
-    return (
-      <span className="cloze-correct-word">
-        {token.original}
-      </span>
-    );
+    return <span className="cloze-correct-word">{token.original}</span>;
   }
+
+  const isWrong = token.status === "wrong";
 
   return (
     <span className={`cloze-wrapper ${token.status}`}>
@@ -34,13 +30,22 @@ export default function ClozeToken({ token, onChange, onCheck }) {
         className={`cloze-input ${token.status}`}
         value={token.userValue}
         onChange={(e) => onChange(token.id, e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isWrong) {
+            e.preventDefault();
+            onCheck(token.id);
+          }
+        }}
         autoComplete="off"
+        disabled={isWrong}
         style={{ width: `${Math.max(token.original.length * 10, 90)}px` }}
       />
 
-      <button className="check-btn" onClick={() => onCheck(token.id)}>
-        ok
-      </button>
+      {!isWrong && (
+        <button className="check-btn" onClick={() => onCheck(token.id)}>
+          ok
+        </button>
+      )}
 
       <ResultBadge
         status={token.status}

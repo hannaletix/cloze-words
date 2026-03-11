@@ -27,15 +27,22 @@ const SMALL_WORDS = new Set([
   "uma",
 ]);
 
-export function tokenizeText(text) {
-  return text.match(/\r\n|\n|\w+|[^\w\s]+|[ \t]+/g) || [];
+function isWordToken(token) {
+  return /^[\p{L}\p{N}]+$/u.test(token);
 }
 
-export function normalizeWord(word) {
+export function tokenizeText(text) {
+  return (
+    text.match(/\r\n|\n|[ \t]+|[\p{L}\p{N}]+(?:[-'’][\p{L}\p{N}]+)*|[^\s]/gu) ||
+    []
+  );
+}
+
+export function normalizeWord(word = "") {
   return word
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w]/g, "")
+    .replace(/[^\p{L}\p{N}]/gu, "")
     .toLowerCase();
 }
 
@@ -44,13 +51,11 @@ export function buildStudyTokens(text, difficulty) {
 
   const wordIndexes = tokens
     .map((token, index) => ({ token, index }))
-    .filter(({ token }) => /\w+/.test(token))
+    .filter(({ token }) => isWordToken(normalizeWord(token)))
     .filter(({ token }) => !SMALL_WORDS.has(normalizeWord(token)));
 
-  const amountToHide = Math.max(
-    1,
-    Math.floor(wordIndexes.length * DIFFICULTY_RATES[difficulty]),
-  );
+  const rate = DIFFICULTY_RATES[difficulty] ?? 0.1;
+  const amountToHide = Math.max(1, Math.floor(wordIndexes.length * rate));
 
   const chosen = pickRandomIndexes(wordIndexes, amountToHide);
   const hiddenSet = new Set(chosen.map((item) => item.index));
@@ -64,7 +69,7 @@ export function buildStudyTokens(text, difficulty) {
       };
     }
 
-    if (!/\w+/.test(token)) {
+    if (!isWordToken(normalizeWord(token))) {
       return {
         id: crypto.randomUUID(),
         type: /[ \t]+/.test(token) ? "space" : "punct",
@@ -72,14 +77,12 @@ export function buildStudyTokens(text, difficulty) {
       };
     }
 
-    const hidden = hiddenSet.has(index);
-
     return {
       id: crypto.randomUUID(),
       type: "word",
       original: token,
-      hidden,
-      status: hidden ? "idle" : "visible",
+      hidden: hiddenSet.has(index),
+      status: hiddenSet.has(index) ? "idle" : "visible",
       userValue: "",
       checked: false,
     };

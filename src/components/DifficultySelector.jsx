@@ -23,15 +23,33 @@ const options = [
   },
 ];
 
-export default function DifficultySelector({ difficulty, onChange }) {
+export default function DifficultySelector({ difficulty, onChange, onReset }) {
+  const selectedOption = options.find((option) => option.id === difficulty);
+
+  if (difficulty && selectedOption) {
+    return (
+      <section className="difficulty-selected-wrapper">
+        <button
+          className={`difficulty-card selected ${selectedOption.id}`}
+          onClick={() => onReset()}
+        >
+          <strong>{selectedOption.label}</strong>
+          <span>{selectedOption.helper}</span>
+        </button>
+
+        <button className="change-difficulty-btn" onClick={onReset}>
+          Trocar nível
+        </button>
+      </section>
+    );
+  }
+
   return (
     <section className="difficulty-grid">
       {options.map((option) => (
         <button
           key={option.id}
-          className={`difficulty-card ${
-            difficulty === option.id ? "selected" : ""
-          } ${option.id}`}
+          className={`difficulty-card ${option.id}`}
           onClick={() => onChange(option.id)}
         >
           <strong>{option.label}</strong>

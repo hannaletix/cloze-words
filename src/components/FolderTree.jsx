@@ -88,10 +88,23 @@ function TreeNode({
         <span className="tree-label">{node.name}</span>
 
         {node.type === "folder" && (
-          <div className="node-actions">
-            <button onClick={createSubfolder}>+P</button>
-            <button onClick={createContent}>+T</button>
-          </div>
+         <div className="node-actions">
+          <button
+            className="icon-btn"
+            onClick={createSubfolder}
+            title="Adicionar subpasta"
+          >
+            📁+
+          </button>
+
+          <button
+            className="icon-btn"
+            onClick={createContent}
+            title="Adicionar conteúdo"
+          >
+            📄+
+          </button>
+        </div>
         )}
 
         <button className="delete-btn" onClick={remove}>

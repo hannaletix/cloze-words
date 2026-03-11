@@ -6,16 +6,8 @@ export default function ResultBadge({ status, original, checked }) {
   }
 
   if (status === "correct") {
-    return (
-      <span className="result-badge correct">
-        ✓
-      </span>
-    );
+    return <span className="result-badge correct">✓</span>;
   }
 
-  return (
-    <span className="result-badge wrong">
-      ✗ {original}
-    </span>
-  );
+  return <span className="result-badge wrong">✗ {original}</span>;
 }

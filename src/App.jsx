@@ -96,6 +96,7 @@ export default function App() {
             <DifficultySelector
               difficulty={difficulty}
               onChange={setDifficulty}
+              onReset={() => setDifficulty(null)}
             />
             {difficulty && (
               <StudySession
